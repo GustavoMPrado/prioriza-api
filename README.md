@@ -8,6 +8,7 @@ This project is part of a full-stack portfolio (React + Vite + TypeScript + Tail
 - Observability (Actuator)
 - Security (JWT auth + CORS + basic rate limiting on login)
 - Practical scaling/resilience improvements (pagination cap, indexes)
+- Safe logging (standardized logs without leaking tokens/passwords)
 
 ---
 
@@ -59,6 +60,12 @@ A basic in-memory rate limit is applied to `/auth/login`:
 ### Pagination cap
 To prevent abusive queries, the API enforces a **page size cap**:
 - Requests with `size` above the cap are coerced (e.g. `size=999` becomes `size=50`).
+
+### Safe logging (no sensitive leaks)
+Logging is standardized via `logback-spring.xml` and must not leak:
+- JWT tokens
+- Authorization headers
+- passwords/secrets
 
 ---
 
@@ -114,11 +121,20 @@ docker compose down
 `curl.exe` on Windows can conflict with `-H` / `-d` flags.  
 For authenticated calls, prefer `Invoke-RestMethod`.
 
+### 0) Health (quick check)
+
+```powershell
+Invoke-RestMethod -Method Get -Uri "https://task-manager-api-njza.onrender.com/actuator/health"
+```
+
+Expected:
+- `status : UP`
+
 ### 1) Login (get token)
 
 ```powershell
 $base = "https://task-manager-api-njza.onrender.com"
-$loginBody = @{ username = "admin"; password = "admin" } | ConvertTo-Json
+$loginBody = @{ username = "admin"; password = "admin123" } | ConvertTo-Json
 $token = (Invoke-RestMethod -Method Post -Uri "$base/auth/login" -ContentType "application/json" -Body $loginBody).token
 $token
 ```
@@ -151,32 +167,49 @@ Invoke-RestMethod -Method Post -Uri "$base/tasks" -ContentType "application/json
 Expected:
 - Returns the created task (with `id`).
 
-### 4) Pagination cap proof
+### 4) Pagination cap proof (LOCAL, shows capped size explicitly)
 
 ```powershell
-Invoke-RestMethod -Method Get -Uri "$base/tasks?page=0&size=999" -Headers @{ Authorization = "Bearer $token" }
+$base = "http://localhost:8081"
+$loginBody = @{ username = "admin"; password = "admin123" } | ConvertTo-Json
+$token = (Invoke-RestMethod -Method Post -Uri "$base/auth/login" -ContentType "application/json" -Body $loginBody).token
+
+Invoke-RestMethod -Method Get -Uri "$base/tasks?page=0&size=999" -Headers @{ Authorization = "Bearer $token" } | ConvertTo-Json -Depth 6
 ```
 
 Expected:
-- Response shows effective `size` capped (e.g. 50).
+- In the JSON response, `page.size` shows the effective capped size (e.g. `50`), even if `size=999` was requested.
 
-### 5) Login rate limit proof (429)
-
-Run this multiple times quickly:
+### 5) Login rate limit proof (429) — PROD
 
 ```powershell
-1..10 | ForEach-Object {
+$base="https://task-manager-api-njza.onrender.com"
+$body = @{ username="admin"; password="admin123" } | ConvertTo-Json
+
+1..6 | ForEach-Object {
   try {
-    Invoke-RestMethod -Method Post -Uri "$base/auth/login" -ContentType "application/json" -Body $loginBody | Out-Null
-    "OK"
+    Invoke-RestMethod -Method POST -Uri "$base/auth/login" -ContentType "application/json" -Body $body | Out-Null
+    "try $_ -> 200"
   } catch {
-    $_.Exception.Response.StatusCode.value__
+    $code = $_.Exception.Response.StatusCode.value__
+    "try $_ -> $code"
   }
 }
 ```
 
 Expected:
-- After some attempts: `429`
+- First 5 attempts: `200`
+- Then: `429`
+
+### 6) Safe logging proof (no token/password leak)
+
+```powershell
+cd C:\workspace\springboot-api
+docker compose logs api | Select-String -Pattern "Authorization|Bearer|eyJhbGci|token|password|admin123"
+```
+
+Expected:
+- No matches / empty output.
 
 ---
 
@@ -191,6 +224,7 @@ Expected:
 
 Gustavo Marinho Prado Alves  
 GitHub: https://github.com/GustavoMPrado
+
 
 
 

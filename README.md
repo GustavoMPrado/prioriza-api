@@ -1,4 +1,4 @@
-# Task Manager API (V2) — JWT + Scaling + Observability
+# Task Manager API (V2) — JWT + Scaling + Observability + AI (Demo-ready)
 
 A production-ready RESTful **Task Manager API** built with **Java 21** and **Spring Boot**.
 
@@ -9,6 +9,7 @@ This project is part of a full-stack portfolio (React + Vite + TypeScript + Tail
 - Security (JWT auth + CORS + basic rate limiting on login)
 - Practical scaling/resilience improvements (pagination cap, indexes)
 - Safe logging (standardized logs without leaking tokens/passwords)
+- AI feature (demo-ready with fallback; OpenAI key optional)
 
 ---
 
@@ -37,6 +38,15 @@ This project is part of a full-stack portfolio (React + Vite + TypeScript + Tail
 - `PATCH /tasks/{id}` — partial update
 - `DELETE /tasks/{id}` — delete
 
+### AI (V2) (`/ai`) — Protected (JWT required)
+- `POST /ai/suggest-priority` — suggests `priority` based on `title/description`
+  - Request: `{ "title": "...", "description": "..." }`
+  - Response: `{ "priority": "LOW|MEDIUM|HIGH", "reason": "..." }`
+
+**AI behavior**
+- If `OPENAI_API_KEY` is configured in the backend runtime, the API will call OpenAI server-to-server.
+- If the key is missing/empty (demo mode) or if OpenAI fails, the API falls back to a deterministic mock response.
+
 ### Health (Actuator)
 - `GET /actuator/health` — should return `UP`
 
@@ -46,6 +56,7 @@ This project is part of a full-stack portfolio (React + Vite + TypeScript + Tail
 
 ### JWT protection
 - `/tasks/**` requires `Authorization: Bearer <token>`
+- `/ai/**` requires `Authorization: Bearer <token>`
 - Without token: `401`
 - With valid token: `200`
 
@@ -112,6 +123,22 @@ Stop:
 ```powershell
 docker compose down
 ```
+
+---
+
+## AI Setup (Optional)
+
+### Demo mode (default)
+If `OPENAI_API_KEY` is empty, the AI endpoint works in demo mode (mock fallback), which is suitable for portfolio demos without external dependencies.
+
+### Enable OpenAI (server-to-server)
+Set the environment variable in the backend runtime (Docker Compose / Render):
+- `OPENAI_API_KEY` = your OpenAI API key
+- (optional) `OPENAI_MODEL` = `gpt-4.1-mini`
+
+Important:
+- The key must stay in the **backend only** (never in the frontend).
+- If OpenAI fails, the endpoint falls back to mock to keep the product usable.
 
 ---
 
@@ -211,6 +238,20 @@ docker compose logs api | Select-String -Pattern "Authorization|Bearer|eyJhbGci|
 Expected:
 - No matches / empty output.
 
+### 7) AI endpoint proof (LOCAL, protected + response)
+
+```powershell
+$base = "http://localhost:8081"
+$loginBody = @{ username = "admin"; password = "admin123" } | ConvertTo-Json
+$token = (Invoke-RestMethod -Method Post -Uri "$base/auth/login" -ContentType "application/json" -Body $loginBody).token
+
+Invoke-RestMethod -Method Post -Uri "$base/ai/suggest-priority" -Headers @{ Authorization = "Bearer $token" } -ContentType "application/json" -Body '{"title":"Pagar aluguel","description":"Vence hoje"}'
+```
+
+Expected:
+- Returns `priority` and `reason`.
+- In demo mode (no key), the reason may be a deterministic mock message.
+
 ---
 
 ## Repositories
@@ -224,6 +265,8 @@ Expected:
 
 Gustavo Marinho Prado Alves  
 GitHub: https://github.com/GustavoMPrado
+
+
 
 
 

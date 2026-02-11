@@ -84,11 +84,15 @@ Expected:
 
 ```powershell
 $base = "https://task-manager-api-njza.onrender.com"
-Invoke-WebRequest -Uri "$base/tasks?page=0&size=1" -Method Get -SkipHttpErrorCheck | Select-Object StatusCode
+try {
+  Invoke-RestMethod "$base/tasks?page=0&size=1"
+} catch {
+  $_.Exception.Response.StatusCode.value__
+}
 ```
 
 Expected:
-- `StatusCode` = `401`
+- `401`
 
 ### 5) Protected endpoint with token returns 200 (Production)
 
@@ -97,21 +101,25 @@ $base = "https://task-manager-api-njza.onrender.com"
 $loginBody = @{ username = "admin"; password = "admin123" } | ConvertTo-Json
 $token = (Invoke-RestMethod -Method Post -Uri "$base/auth/login" -ContentType "application/json" -Body $loginBody).token
 
-Invoke-WebRequest -Uri "$base/tasks?page=0&size=1" -Method Get -Headers @{ Authorization = "Bearer $token" } -SkipHttpErrorCheck | Select-Object StatusCode
+Invoke-RestMethod -Method Get -Uri "$base/tasks?page=0&size=1" -Headers @{ Authorization = "Bearer $token" }
 ```
 
 Expected:
-- `StatusCode` = `200`
+- JSON response (paginated tasks) without error
 
 ### 6) AI endpoint without token returns 401 (Production)
 
 ```powershell
 $base = "https://task-manager-api-njza.onrender.com"
-Invoke-WebRequest -Uri "$base/ai/suggest-priority" -Method Post -ContentType "application/json" -Body '{"title":"Pay rent","description":"Due today"}' -SkipHttpErrorCheck | Select-Object StatusCode
+try {
+  Invoke-RestMethod -Method Post -Uri "$base/ai/suggest-priority" -ContentType "application/json" -Body '{"title":"Pay rent","description":"Due today"}'
+} catch {
+  $_.Exception.Response.StatusCode.value__
+}
 ```
 
 Expected:
-- `StatusCode` = `401`
+- `401`
 
 ### 7) AI endpoint with token returns 200 (Production)
 
@@ -120,20 +128,21 @@ $base = "https://task-manager-api-njza.onrender.com"
 $loginBody = @{ username = "admin"; password = "admin123" } | ConvertTo-Json
 $token = (Invoke-RestMethod -Method Post -Uri "$base/auth/login" -ContentType "application/json" -Body $loginBody).token
 
-Invoke-WebRequest -Uri "$base/ai/suggest-priority" -Method Post -Headers @{ Authorization = "Bearer $token" } -ContentType "application/json" -Body '{"title":"Pay rent","description":"Due today"}' -SkipHttpErrorCheck | Select-Object StatusCode
+Invoke-RestMethod -Method Post -Uri "$base/ai/suggest-priority" -Headers @{ Authorization = "Bearer $token" } -ContentType "application/json" -Body '{"title":"Pay rent","description":"Due today"}'
 ```
 
 Expected:
-- `StatusCode` = `200`
+- JSON with `priority` and `reason`
 
 ### 8) Rate limit evidence on /auth/login (Production)
 
-Run the command below 6 times quickly (same minute):
+Run the command below 6 times quickly (same minute). You can repeat using ↑ (arrow up) + Enter.
 
 ```powershell
 $base = "https://task-manager-api-njza.onrender.com"
-$loginBody = @{ username = "admin"; password = "wrong" } | ConvertTo-Json
-Invoke-WebRequest -Method Post -Uri "$base/auth/login" -ContentType "application/json" -Body $loginBody -SkipHttpErrorCheck | Select-Object StatusCode
+$body = @{ username = "admin"; password = "wrong" } | ConvertTo-Json
+try { Invoke-RestMethod -Method Post -Uri "$base/auth/login" -ContentType "application/json" -Body $body }
+catch { $_.Exception.Response.StatusCode.value__ }
 ```
 
 Expected:
@@ -142,40 +151,44 @@ Expected:
 
 ### 9) Pagination cap evidence (Local)
 
-Start local environment first:
-- API local: `http://localhost:8081`
+Local API:
+- `http://localhost:8081`
 
 ```powershell
 $local = "http://localhost:8081"
 $loginBody = @{ username = "admin"; password = "admin123" } | ConvertTo-Json
 $token = (Invoke-RestMethod -Method Post -Uri "$local/auth/login" -ContentType "application/json" -Body $loginBody).token
 
-Invoke-RestMethod -Method Get -Uri "$local/tasks?page=0&size=999" -Headers @{ Authorization = "Bearer $token" }
+$r = Invoke-RestMethod -Method Get -Uri "$local/tasks?page=0&size=999" -Headers @{ Authorization = "Bearer $token" }
+$r.page
 ```
 
 Expected:
-- Response indicates effective `size` is limited (e.g., `size` becomes `50`)
+- `size` shows the effective cap (e.g., `size : 50`)
 
 ### 10) Logs do not leak secrets (Local)
 
-After running some requests locally, validate logs (adjust path if needed):
+This project runs locally via Docker Compose. Capture the API container logs and search for sensitive values.
 
 ```powershell
 cd C:\workspace\springboot-api
-Get-ChildItem -Recurse -File | Where-Object { $_.Name -match "log" }
-```
-
-If you log to a specific file (example `logs/app.log`), search for sensitive tokens:
-
-```powershell
-Select-String -Path .\logs\*.log -Pattern "Authorization|Bearer|token|password" -SimpleMatch
+docker compose up -d --build
+docker compose logs api --no-color > logs-console.txt
+Select-String -Path .\logs-console.txt -Pattern "Authorization|Bearer|token|password" -SimpleMatch
 ```
 
 Expected:
-- No matches (or only safe static words without actual secrets)
+- No matches (no secrets leaked)
+
+After validation, remove the file:
+
+```powershell
+Remove-Item .\logs-console.txt
+```
 
 ---
 
 ## Notes
 - Production testing is lightweight to avoid impacting the Render Free service.
 - For deeper testing, use the controlled local environment (Docker Compose) and the planned D2 Pentest (Kali, light recon + validation).
+

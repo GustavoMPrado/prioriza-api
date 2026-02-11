@@ -24,6 +24,13 @@ This project is part of a full-stack portfolio (React + Vite + TypeScript + Tail
 
 ---
 
+## Frontend (Production Demo)
+
+- https://gustavomprado.github.io/task-manager-frontend/  
+  - Includes a JWT-protected AI feature: **"Sugerir prioridade"** (calls this API endpoint `POST /ai/suggest-priority`)
+
+---
+
 ## API Overview
 
 ### Auth (JWT)
@@ -238,7 +245,20 @@ docker compose logs api | Select-String -Pattern "Authorization|Bearer|eyJhbGci|
 Expected:
 - No matches / empty output.
 
-### 7) AI endpoint proof (LOCAL, protected + response)
+### 7) AI endpoint proof (PROD, protected + response)
+
+```powershell
+$base = "https://task-manager-api-njza.onrender.com"
+$loginBody = @{ username = "admin"; password = "admin123" } | ConvertTo-Json
+$token = (Invoke-RestMethod -Method Post -Uri "$base/auth/login" -ContentType "application/json" -Body $loginBody).token
+
+Invoke-RestMethod -Method Post -Uri "$base/ai/suggest-priority" -Headers @{ Authorization = "Bearer $token" } -ContentType "application/json" -Body '{"title":"Pagar aluguel","description":"Vence hoje"}'
+```
+
+Expected:
+- Returns `priority` and `reason` (in demo mode, reason may be deterministic mock text).
+
+### 8) AI endpoint proof (LOCAL, protected + response)
 
 ```powershell
 $base = "http://localhost:8081"
@@ -265,6 +285,7 @@ Expected:
 
 Gustavo Marinho Prado Alves  
 GitHub: https://github.com/GustavoMPrado
+
 
 
 

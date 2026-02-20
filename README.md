@@ -87,6 +87,25 @@ Logging is standardized via `logback-spring.xml` and must not leak:
 
 ---
 
+## Security Documentation / Pentest Evidence
+
+- Security summary and controls: `SECURITY.md`
+- Local pentest report (controlled scope, Kali): `docs/PENTEST.md`
+
+### Pentest scope (D2)
+A light, controlled pentest was executed in a local authorized lab (Kali Linux + VirtualBox + host-only network) against the local API instance.  
+The objective was to generate real portfolio evidence of:
+- access control (`401` without token / `200` with token)
+- AI endpoint protection
+- validation behavior (`400`, not `500`)
+- pagination cap enforcement
+- basic recon visibility (port open / service reachable)
+
+Evidence files are versioned in:
+- `docs/pentest-evidencias/`
+
+---
+
 ## Scaling / Database (Flyway)
 
 Flyway migrations are used to version the schema:

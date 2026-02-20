@@ -91,6 +91,7 @@ Logging is standardized via `logback-spring.xml` and must not leak:
 
 - Security summary and controls: `SECURITY.md`
 - Local pentest report (controlled scope, Kali): `docs/PENTEST.md`
+- Portfolio project summary (recruiter-friendly): `docs/PORTFOLIO_SUMMARY.md`
 
 ### Pentest scope (D2)
 A light, controlled pentest was executed in a local authorized lab (Kali Linux + VirtualBox + host-only network) against the local API instance.  
@@ -304,8 +305,6 @@ Expected:
 
 Gustavo Marinho Prado Alves  
 GitHub: https://github.com/GustavoMPrado
-
-
 
 
 

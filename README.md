@@ -115,6 +115,8 @@ Flyway migrations are used to version the schema:
 
 Evidence is recorded in `flyway_schema_history`.
 
+**Production database note:** the API remains hosted on Render, and the PostgreSQL database was migrated to **Neon** to avoid Render Free Postgres expiration while keeping the same public API URL.
+
 ---
 
 ## Tech Stack
@@ -305,7 +307,6 @@ Expected:
 
 Gustavo Marinho Prado Alves  
 GitHub: https://github.com/GustavoMPrado
-
 
 
 

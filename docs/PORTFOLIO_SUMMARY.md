@@ -42,6 +42,7 @@ The goal of this project is to show a strong job-ready combination of:
 ### Production
 - Backend deployed on Render
 - Frontend deployed on GitHub Pages
+- Production PostgreSQL migrated to Neon (API URL unchanged)
 
 ---
 

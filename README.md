@@ -7,17 +7,11 @@ I built it with Java 21 and Spring Boot, and this V2 version is where I added th
 Main points of this version:
 
 - REST API with validation and structured responses
-
 - Flyway migrations for database versioning
-
 - Actuator for health/observability
-
 - JWT-protected routes + CORS configuration
-
 - Basic rate limiting on login
-
 - Pagination cap and indexes for safer queries
-
 - AI priority suggestion endpoint with fallback for demo use
 
 ---
@@ -43,7 +37,7 @@ Main points of this version:
 
 ---
 
- ## API Overview
+## API Overview
 
 ### Auth (JWT)
 - `POST /auth/login` — returns `{ "token": "<jwt>" }`
@@ -64,7 +58,7 @@ Main points of this version:
 
 **AI behavior**
 - If `OPENAI_API_KEY` is configured in the backend runtime, the API calls OpenAI server-to-server.
-- If the key is missing (or OpenAI fails), the API returns a deterministic mock response instead of breknig the flow.
+- If the key is missing (or OpenAI fails), the API returns a deterministic mock response instead of breaking the flow.
 
 ### Health (Actuator)
 - `GET /actuator/health` — should return `UP`
@@ -72,7 +66,7 @@ Main points of this version:
 ---
 
 ## Security Notes (V2)
-In V2, one of my goals was to improve api security basicis, not only the features.
+In V2, one of my goals was to improve API security basics, not only add features.
 
 ### JWT protection
 - `/tasks/**` requires `Authorization: Bearer <token>`
@@ -81,16 +75,16 @@ In V2, one of my goals was to improve api security basicis, not only the feature
 - With valid token: `200`
 
 ### CORS
-CORS is configured to allow requests from my GitHub Pages frontend:
+I configured CORS to allow requests from my GitHub Pages frontend:
 - https://gustavomprado.github.io
 
 ### Login rate limit (basic)
-I added a basic in-memory rate limit to \ POST /auth/login`:`
+I added a basic in-memory rate limit to `POST /auth/login`:
 - After **5 attempts per minute per IP**, returns **429**.
 
 ### Pagination cap
 To prevent abusive queries, the API enforces a **page size cap**:
-- Requests with \ size` above the cap are coerced (for example, `size=999` becomes `size=50`).`.
+- Requests with `size` above the cap are coerced (for example, `size=999` becomes `size=50`).
 
 ### Safe logging (no sensitive leaks)
 Logging is standardized via `logback-spring.xml` and must not leak:
@@ -127,7 +121,7 @@ I use Flyway migrations to version the database schema:
 - `V1__create_tasks_table.sql`
 - `V2__add_indexes_timestamps.sql`
 
-Migration history is recorded in \ flyway_schema_history`.`
+Migration history is recorded in `flyway_schema_history`.
 
 **Production database note:** I kept the API hosted on Render, but migrated the PostgreSQL database to **Neon** to avoid Render Free Postgres expiration and keep the same public API URL.
 
@@ -150,29 +144,29 @@ Migration history is recorded in \ flyway_schema_history`.`
 
 ## Running locally (Docker Compose)
 
-From the folder where \ docker-compose.yml` is located, run:`
+From the folder where `docker-compose.yml` is located, run:
 
 ```powershell
 docker compose up -d --build
 ```
-This starts the API locally on port 8081.
+This starts the API locally on port `8081`.
+
 API:
-- http://localhost:8081
+- `http://localhost:8081`
 
 Health:
-- http://localhost:8081/actuator/health
+- `http://localhost:8081/actuator/health`
 
 Stop:
 ```powershell
 docker compose down
-```
 
 ---
 
 ## AI Setup (Optional)
 
 ### Demo mode (default)
-I added a demo mode so the AI endpoint still works even when \ OPENAI_API_KEY` is not configured.`
+I added a demo mode so the AI endpoint still works even when `OPENAI_API_KEY` is not configured.
 
 ### Enable OpenAI (server-to-server)
 When I want to use a real AI response, I configure the environment variable in the backend runtime (Docker Compose / Render):
@@ -189,8 +183,8 @@ Important:
 These are the PowerShell commands I use to validate the API behavior in practice (local and production).
 
 ### Important note (PowerShell)
-On Windows, \ curl.exe` can conflict with `-H` and `-d` flags.`  
-For authenticated requests, I prefer \Invoke-RestMethod`.`
+On Windows, `curl.exe` can conflict with `-H` and `-d` flags.  
+For authenticated requests, I prefer `Invoke-RestMethod`.
 
 ### 0) Health (quick check)
 

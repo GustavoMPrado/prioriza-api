@@ -1,8 +1,8 @@
 # Security Policy & Evidence — Task Manager API
 
-This document summarizes the security measures implemented in the Task Manager API (V2) and provides reproducible evidence commands (PowerShell) to validate them.
+This document summarizes the security measures that I implemented in the Task Manager API (V2) and includes reproducible PowerShell commands I use to validate them.
 
-Scope: lightweight, safe checks. No heavy load testing in production.
+Scope: lightweight, safe checks only. No heavy load testing in production.
 
 ## Production endpoints (Render)
 
@@ -23,24 +23,24 @@ Note: Render Free can cold start on the first request.
   - With valid token: `200 OK`
 
 ### CORS (Frontend integration)
-- CORS is configured to allow the GitHub Pages frontend.
-- Preflight (`OPTIONS`) is allowed, preventing infinite loading on the browser.
+- I configured CORS to allow the GitHub Pages frontend.
+- Preflight (`OPTIONS`) is allowed, which avoids infinite loading in the browser.
 
 ### Rate limiting (login)
-- `/auth/login` is rate limited in-memory per IP:
+- I added an in-memory rate limit per IP on `/auth/login`:
   - 5 attempts per minute
   - Exceeding limit returns `429 Too Many Requests`
 
 ### Pagination safeguards
-- Page size is capped to prevent abuse:
+- I capped page size to prevent abse:
   - Example: `size=999` is limited to `size=50`
 
 ### Safe logging (no secrets)
-- Logging is standardized and reviewed to avoid leaking secrets.
+- I reviewed and standardized logs to avoid leaking secrets.
 - No `Authorization`, `Bearer`, `token`, or `password` values should appear in logs.
 
 ### Observability
-- Actuator health endpoint enabled:
+- I enabled the Actuator health endpoint:
   - `/actuator/health` should report `UP`
 
 ---
@@ -56,7 +56,7 @@ $base = "https://task-manager-api-njza.onrender.com"
 Invoke-RestMethod "$base/actuator/health"
 ```
 
-Expected:
+Expected result:
 - JSON containing `status` = `UP`
 
 ### 2) Production root status
@@ -66,7 +66,7 @@ $base = "https://task-manager-api-njza.onrender.com"
 Invoke-RestMethod "$base/"
 ```
 
-Expected:
+Expected result:
 - `{"status":"ok","service":"task-manager-api"}`
 
 ### 3) Login returns a token (Production)
@@ -77,7 +77,7 @@ $loginBody = @{ username = "admin"; password = "admin123" } | ConvertTo-Json
 Invoke-RestMethod -Method Post -Uri "$base/auth/login" -ContentType "application/json" -Body $loginBody
 ```
 
-Expected:
+Expected result:
 - JSON with a `token` field
 
 ### 4) Protected endpoint without token returns 401 (Production)
@@ -91,7 +91,7 @@ try {
 }
 ```
 
-Expected:
+Expected result:
 - `401`
 
 ### 5) Protected endpoint with token returns 200 (Production)
@@ -104,7 +104,7 @@ $token = (Invoke-RestMethod -Method Post -Uri "$base/auth/login" -ContentType "a
 Invoke-RestMethod -Method Get -Uri "$base/tasks?page=0&size=1" -Headers @{ Authorization = "Bearer $token" }
 ```
 
-Expected:
+Expected result:
 - JSON response (paginated tasks) without error
 
 ### 6) AI endpoint without token returns 401 (Production)
@@ -118,7 +118,7 @@ try {
 }
 ```
 
-Expected:
+Expected result:
 - `401`
 
 ### 7) AI endpoint with token returns 200 (Production)
@@ -131,7 +131,7 @@ $token = (Invoke-RestMethod -Method Post -Uri "$base/auth/login" -ContentType "a
 Invoke-RestMethod -Method Post -Uri "$base/ai/suggest-priority" -Headers @{ Authorization = "Bearer $token" } -ContentType "application/json" -Body '{"title":"Pay rent","description":"Due today"}'
 ```
 
-Expected:
+Expected result:
 - JSON with `priority` and `reason`
 
 ### 8) Rate limit evidence on /auth/login (Production)
@@ -145,7 +145,7 @@ try { Invoke-RestMethod -Method Post -Uri "$base/auth/login" -ContentType "appli
 catch { $_.Exception.Response.StatusCode.value__ }
 ```
 
-Expected:
+Expected result:
 - First attempts: `401`
 - After threshold: `429`
 
@@ -163,7 +163,7 @@ $r = Invoke-RestMethod -Method Get -Uri "$local/tasks?page=0&size=999" -Headers 
 $r.page
 ```
 
-Expected:
+Expected result:
 - `size` shows the effective cap (e.g., `size : 50`)
 
 ### 10) Logs do not leak secrets (Local)
@@ -177,7 +177,7 @@ docker compose logs api --no-color > logs-console.txt
 Select-String -Path .\logs-console.txt -Pattern "Authorization|Bearer|token|password" -SimpleMatch
 ```
 
-Expected:
+Expected result:
 - No matches (no secrets leaked)
 
 After validation, remove the file:
@@ -190,5 +190,5 @@ Remove-Item .\logs-console.txt
 
 ## Notes
 - Production testing is lightweight to avoid impacting the Render Free service.
-- For deeper testing, use the controlled local environment (Docker Compose) and the planned D2 Pentest (Kali, light recon + validation).
+- For deeper testing, I use the controlled local environment (Docker Compose) and the planned pentest phase (Kali Linux, light recon + validation).
 

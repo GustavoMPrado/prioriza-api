@@ -1,26 +1,38 @@
-# Task Manager API (V2) — JWT + Scaling + Observability + AI (Demo-ready)
+## Task Manager API (V2) — JWT + Scaling + Observability + AI (Demo-ready)
 
-A production-ready RESTful **Task Manager API** built with **Java 21** and **Spring Boot**.
+This API is the backend of my Task Manager project, and it is my main portfolio project to practice and show real backend development with Java.
 
-This project is part of a full-stack portfolio (React + Vite + TypeScript + Tailwind) and demonstrates:
-- Clean architecture and validation
-- Database migrations (Flyway)
-- Observability (Actuator)
-- Security (JWT auth + CORS + basic rate limiting on login)
-- Practical scaling/resilience improvements (pagination cap, indexes)
-- Safe logging (standardized logs without leaking tokens/passwords)
-- AI feature (demo-ready with fallback; OpenAI key optional)
+I built it with Java 21 and Spring Boot, and this V2 version is where I added the parts I wanted to study in a more practical way: JWT authentication, observability, safer logging, scaling details, and an AI feature that works even without an API key (fallback mode).
+
+Main points of this version:
+
+- REST API with validation and structured responses
+
+- Flyway migrations for database versioning
+
+- Actuator for health/observability
+
+- JWT-protected routes + CORS configuration
+
+- Basic rate limiting on login
+
+- Pagination cap and indexes for safer queries
+
+- AI priority suggestion endpoint with fallback for demo use
 
 ---
 
 ## Production (Render)
 
-- Base URL: https://task-manager-api-njza.onrender.com  
-- Health (Actuator): https://task-manager-api-njza.onrender.com/actuator/health  
-- Root status: https://task-manager-api-njza.onrender.com/  
-  - Returns: `{"status":"ok","service":"task-manager-api"}`
+- Base URL: https://task-manager-api-njza.onrender.com
 
-**Note:** Render Free may have a cold start (~50s) on the first request.
+- Health (Actuator): https://task-manager-api-njza.onrender.com/actuator/health
+
+- Root status: https://task-manager-api-njza.onrender.com/
+
+  - Returns: {"status":"ok","service":"task-manager-api"}
+
+**Note (Render free tier):** If the API stays idle for some time, the first request may take longer (cold start, usually around 30s to 60s). After that, responses are normal.
 
 ---
 
@@ -31,7 +43,7 @@ This project is part of a full-stack portfolio (React + Vite + TypeScript + Tail
 
 ---
 
-## API Overview
+ ## API Overview
 
 ### Auth (JWT)
 - `POST /auth/login` — returns `{ "token": "<jwt>" }`
@@ -51,8 +63,8 @@ This project is part of a full-stack portfolio (React + Vite + TypeScript + Tail
   - Response: `{ "priority": "LOW|MEDIUM|HIGH", "reason": "..." }`
 
 **AI behavior**
-- If `OPENAI_API_KEY` is configured in the backend runtime, the API will call OpenAI server-to-server.
-- If the key is missing/empty (demo mode) or if OpenAI fails, the API falls back to a deterministic mock response.
+- If `OPENAI_API_KEY` is configured in the backend runtime, the API calls OpenAI server-to-server.
+- If the key is missing (or OpenAI fails), the API returns a deterministic mock response instead of breknig the flow.
 
 ### Health (Actuator)
 - `GET /actuator/health` — should return `UP`
@@ -60,6 +72,7 @@ This project is part of a full-stack portfolio (React + Vite + TypeScript + Tail
 ---
 
 ## Security Notes (V2)
+In V2, one of my goals was to improve api security basicis, not only the features.
 
 ### JWT protection
 - `/tasks/**` requires `Authorization: Bearer <token>`
@@ -68,16 +81,16 @@ This project is part of a full-stack portfolio (React + Vite + TypeScript + Tail
 - With valid token: `200`
 
 ### CORS
-CORS is configured to allow requests from the GitHub Pages frontend:
+CORS is configured to allow requests from my GitHub Pages frontend:
 - https://gustavomprado.github.io
 
 ### Login rate limit (basic)
-A basic in-memory rate limit is applied to `/auth/login`:
+I added a basic in-memory rate limit to \ POST /auth/login`:`
 - After **5 attempts per minute per IP**, returns **429**.
 
 ### Pagination cap
 To prevent abusive queries, the API enforces a **page size cap**:
-- Requests with `size` above the cap are coerced (e.g. `size=999` becomes `size=50`).
+- Requests with \ size` above the cap are coerced (for example, `size=999` becomes `size=50`).`.
 
 ### Safe logging (no sensitive leaks)
 Logging is standardized via `logback-spring.xml` and must not leak:
@@ -88,14 +101,15 @@ Logging is standardized via `logback-spring.xml` and must not leak:
 ---
 
 ## Security Documentation / Pentest Evidence
+I used this project to generate real security evidence for my portfolio (controlled local lab only).
 
 - Security summary and controls: `SECURITY.md`
 - Local pentest report (controlled scope, Kali): `docs/PENTEST.md`
 - Portfolio project summary (recruiter-friendly): `docs/PORTFOLIO_SUMMARY.md`
 
 ### Pentest scope (D2)
-A light, controlled pentest was executed in a local authorized lab (Kali Linux + VirtualBox + host-only network) against the local API instance.  
-The objective was to generate real portfolio evidence of:
+I executed a light pentest in a local authorized lab (Kali Linux + VirtualBox + host-only network) against the local API instance.  
+The goal was to generate portfolio evidence of:
 - access control (`401` without token / `200` with token)
 - AI endpoint protection
 - validation behavior (`400`, not `500`)
@@ -109,13 +123,13 @@ Evidence files are versioned in:
 
 ## Scaling / Database (Flyway)
 
-Flyway migrations are used to version the schema:
+I use Flyway migrations to version the database schema:
 - `V1__create_tasks_table.sql`
 - `V2__add_indexes_timestamps.sql`
 
-Evidence is recorded in `flyway_schema_history`.
+Migration history is recorded in \ flyway_schema_history`.`
 
-**Production database note:** the API remains hosted on Render, and the PostgreSQL database was migrated to **Neon** to avoid Render Free Postgres expiration while keeping the same public API URL.
+**Production database note:** I kept the API hosted on Render, but migrated the PostgreSQL database to **Neon** to avoid Render Free Postgres expiration and keep the same public API URL.
 
 ---
 
@@ -136,12 +150,12 @@ Evidence is recorded in `flyway_schema_history`.
 
 ## Running locally (Docker Compose)
 
-From the folder where `docker-compose.yml` is located:
+From the folder where \ docker-compose.yml` is located, run:`
 
 ```powershell
 docker compose up -d --build
 ```
-
+This starts the API locally on port 8081.
 API:
 - http://localhost:8081
 
@@ -158,24 +172,25 @@ docker compose down
 ## AI Setup (Optional)
 
 ### Demo mode (default)
-If `OPENAI_API_KEY` is empty, the AI endpoint works in demo mode (mock fallback), which is suitable for portfolio demos without external dependencies.
+I added a demo mode so the AI endpoint still works even when \ OPENAI_API_KEY` is not configured.`
 
 ### Enable OpenAI (server-to-server)
-Set the environment variable in the backend runtime (Docker Compose / Render):
+When I want to use a real AI response, I configure the environment variable in the backend runtime (Docker Compose / Render):
 - `OPENAI_API_KEY` = your OpenAI API key
 - (optional) `OPENAI_MODEL` = `gpt-4.1-mini`
 
 Important:
-- The key must stay in the **backend only** (never in the frontend).
-- If OpenAI fails, the endpoint falls back to mock to keep the product usable.
+- I keep the key in the **backend only** (never in the frontend).
+- If OpenAI fails, the endpoint falls back to mock mode so the app still works.
 
 ---
 
 ## Evidence (PowerShell)
+These are the PowerShell commands I use to validate the API behavior in practice (local and production).
 
 ### Important note (PowerShell)
-`curl.exe` on Windows can conflict with `-H` / `-d` flags.  
-For authenticated calls, prefer `Invoke-RestMethod`.
+On Windows, \ curl.exe` can conflict with `-H` and `-d` flags.`  
+For authenticated requests, I prefer \Invoke-RestMethod`.`
 
 ### 0) Health (quick check)
 
@@ -183,7 +198,7 @@ For authenticated calls, prefer `Invoke-RestMethod`.
 Invoke-RestMethod -Method Get -Uri "https://task-manager-api-njza.onrender.com/actuator/health"
 ```
 
-Expected:
+Expected result:
 - `status : UP`
 
 ### 1) Login (get token)
@@ -195,7 +210,7 @@ $token = (Invoke-RestMethod -Method Post -Uri "$base/auth/login" -ContentType "a
 $token
 ```
 
-Expected:
+Expected result:
 - Prints a JWT token string.
 
 ### 2) List tasks (Bearer token)
@@ -204,7 +219,7 @@ Expected:
 Invoke-RestMethod -Method Get -Uri "$base/tasks?page=0&size=5&sort=id,desc" -Headers @{ Authorization = "Bearer $token" }
 ```
 
-Expected:
+Expected result:
 - `content` array with tasks and pagination fields.
 
 ### 3) Create task (Bearer token)
@@ -220,7 +235,7 @@ $body = @{
 Invoke-RestMethod -Method Post -Uri "$base/tasks" -ContentType "application/json" -Headers @{ Authorization = "Bearer $token" } -Body $body
 ```
 
-Expected:
+Expected result:
 - Returns the created task (with `id`).
 
 ### 4) Pagination cap proof (LOCAL, shows capped size explicitly)
@@ -233,7 +248,7 @@ $token = (Invoke-RestMethod -Method Post -Uri "$base/auth/login" -ContentType "a
 Invoke-RestMethod -Method Get -Uri "$base/tasks?page=0&size=999" -Headers @{ Authorization = "Bearer $token" } | ConvertTo-Json -Depth 6
 ```
 
-Expected:
+Expected result:
 - In the JSON response, `page.size` shows the effective capped size (e.g. `50`), even if `size=999` was requested.
 
 ### 5) Login rate limit proof (429) — PROD
@@ -253,7 +268,7 @@ $body = @{ username="admin"; password="admin123" } | ConvertTo-Json
 }
 ```
 
-Expected:
+Expected results:
 - First 5 attempts: `200`
 - Then: `429`
 
@@ -264,7 +279,7 @@ cd C:\workspace\springboot-api
 docker compose logs api | Select-String -Pattern "Authorization|Bearer|eyJhbGci|token|password|admin123"
 ```
 
-Expected:
+Expected result:
 - No matches / empty output.
 
 ### 7) AI endpoint proof (PROD, protected + response)
@@ -277,7 +292,7 @@ $token = (Invoke-RestMethod -Method Post -Uri "$base/auth/login" -ContentType "a
 Invoke-RestMethod -Method Post -Uri "$base/ai/suggest-priority" -Headers @{ Authorization = "Bearer $token" } -ContentType "application/json" -Body '{"title":"Pagar aluguel","description":"Vence hoje"}'
 ```
 
-Expected:
+Expected result:
 - Returns `priority` and `reason` (in demo mode, reason may be deterministic mock text).
 
 ### 8) AI endpoint proof (LOCAL, protected + response)
@@ -290,7 +305,7 @@ $token = (Invoke-RestMethod -Method Post -Uri "$base/auth/login" -ContentType "a
 Invoke-RestMethod -Method Post -Uri "$base/ai/suggest-priority" -Headers @{ Authorization = "Bearer $token" } -ContentType "application/json" -Body '{"title":"Pagar aluguel","description":"Vence hoje"}'
 ```
 
-Expected:
+Expected result:
 - Returns `priority` and `reason`.
 - In demo mode (no key), the reason may be a deterministic mock message.
 
@@ -307,6 +322,7 @@ Expected:
 
 Gustavo Marinho Prado Alves  
 GitHub: https://github.com/GustavoMPrado
+Email: gmarinhoprado@gmail.com
 
 
 

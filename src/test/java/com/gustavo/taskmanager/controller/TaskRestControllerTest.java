@@ -95,7 +95,7 @@ class TaskRestControllerTest {
         resp.setCreatedAt(created.getCreatedAt());
         resp.setUpdatedAt(created.getUpdatedAt());
 
-        when(taskService.toResponseDTO(created)).thenReturn(resp);
+        when(taskService.toTaskResponse(created)).thenReturn(resp);
 
         mockMvc.perform(post("/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -223,7 +223,7 @@ class TaskRestControllerTest {
         task.setPriority(TaskPriority.HIGH);
         task.prePersist();
 
-        when(taskService.findById(5L)).thenReturn(task);
+        when(taskService.getTaskOrThrow(5L)).thenReturn(task);
 
         TaskResponse resp = new TaskResponse();
         resp.setId(5L);
@@ -235,7 +235,7 @@ class TaskRestControllerTest {
         resp.setCreatedAt(task.getCreatedAt());
         resp.setUpdatedAt(task.getUpdatedAt());
 
-        when(taskService.toResponseDTO(task)).thenReturn(resp);
+        when(taskService.toTaskResponse(task)).thenReturn(resp);
 
         mockMvc.perform(get("/tasks/5"))
                 .andExpect(status().isOk())
@@ -246,7 +246,7 @@ class TaskRestControllerTest {
 
     @Test
     void getById_quandoNaoExiste_deveRetornar404ComApiError() throws Exception {
-        when(taskService.findById(999L)).thenThrow(new TaskNotFoundException(999L));
+        when(taskService.getTaskOrThrow(999L)).thenThrow(new TaskNotFoundException(999L));
 
         mockMvc.perform(get("/tasks/999"))
                 .andExpect(status().isNotFound())
@@ -316,7 +316,7 @@ class TaskRestControllerTest {
 
     @Test
     void delete_deveRetornar204() throws Exception {
-        doNothing().when(taskService).delete(20L);
+        doNothing().when(taskService).deleteById(20L);
 
         mockMvc.perform(delete("/tasks/20"))
                 .andExpect(status().isNoContent());

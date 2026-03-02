@@ -49,8 +49,8 @@ public class TaskService {
         return taskRepository.findAll();
     }
 
-    public Page<TaskResponse> findAll(Pageable pageable) {
-        return taskRepository.findAll(pageable).map(this::toResponseDTO);
+    public Page<TaskResponse> list(Pageable pageable) {
+        return taskRepository.findAll(pageable).map(this::toTaskResponse);
     }
 
     public Page<TaskResponse> search(String q, TaskStatus status, TaskPriority priority, Pageable pageable) {
@@ -58,37 +58,37 @@ public class TaskService {
         boolean hasQ = query != null && !query.isBlank();
 
         if (!hasQ && status == null && priority == null) {
-            return findAll(pageable);
+            return list(pageable);
         }
 
         if (hasQ) {
             String like = "%" + query.toLowerCase() + "%";
-            return taskRepository.search(like, status, priority, pageable).map(this::toResponseDTO);
+            return taskRepository.search(like, status, priority, pageable).map(this::toTaskResponse);
         }
 
-        return taskRepository.filterOnly(status, priority, pageable).map(this::toResponseDTO);
+        return taskRepository.filterOnly(status, priority, pageable).map(this::toTaskResponse);
     }
 
-    public Task findById(Long id) {
+    public Task getTaskOrThrow(Long id) {
         return taskRepository.findById(id)
                 .orElseThrow(() -> new TaskNotFoundException(id));
     }
 
-    public TaskResponse toResponseDTO(Task task) {
-        TaskResponse dto = new TaskResponse();
-        dto.setId(task.getId());
-        dto.setTitle(task.getTitle());
-        dto.setDescription(task.getDescription());
-        dto.setStatus(task.getStatus());
-        dto.setPriority(task.getPriority());
-        dto.setDueDate(task.getDueDate());
-        dto.setCreatedAt(task.getCreatedAt());
-        dto.setUpdatedAt(task.getUpdatedAt());
-        return dto;
+    public TaskResponse toTaskResponse(Task task) {
+        TaskResponse response = new TaskResponse();
+        response.setId(task.getId());
+        response.setTitle(task.getTitle());
+        response.setDescription(task.getDescription());
+        response.setStatus(task.getStatus());
+        response.setPriority(task.getPriority());
+        response.setDueDate(task.getDueDate());
+        response.setCreatedAt(task.getCreatedAt());
+        response.setUpdatedAt(task.getUpdatedAt());
+        return response;
     }
 
     public TaskResponse update(Long id, UpdateTaskRequest dto) {
-        Task task = findById(id);
+        Task task = getTaskOrThrow(id);
 
         task.setTitle(dto.getTitle());
         task.setDescription(dto.getDescription());
@@ -106,11 +106,11 @@ public class TaskService {
         task.setDueDate(dto.getDueDate());
 
         Task saved = taskRepository.save(task);
-        return toResponseDTO(saved);
+        return toTaskResponse(saved);
     }
 
     public TaskResponse patch(Long id, PatchTaskRequest dto) {
-        Task task = findById(id);
+        Task task = getTaskOrThrow(id);
 
         if (dto.getTitle() != null) task.setTitle(dto.getTitle());
         if (dto.getDescription() != null) task.setDescription(dto.getDescription());
@@ -119,11 +119,11 @@ public class TaskService {
         if (dto.getDueDate() != null) task.setDueDate(dto.getDueDate());
 
         Task saved = taskRepository.save(task);
-        return toResponseDTO(saved);
+        return toTaskResponse(saved);
     }
 
-    public void delete(Long id) {
-        Task task = findById(id);
+    public void deleteById(Long id) {
+        Task task = getTaskOrThrow(id);
         taskRepository.delete(task);
     }
 }

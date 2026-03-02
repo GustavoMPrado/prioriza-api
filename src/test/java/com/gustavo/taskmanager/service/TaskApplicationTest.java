@@ -96,7 +96,7 @@ class TaskApplicationTest {
     void findById_quandoNaoExiste_deveLancarTaskNotFoundException() {
         when(taskRepository.findById(123L)).thenReturn(java.util.Optional.empty());
 
-        TaskNotFoundException ex = assertThrows(TaskNotFoundException.class, () -> taskService.findById(123L));
+        TaskNotFoundException ex = assertThrows(TaskNotFoundException.class, () -> taskService.getTaskOrThrow(123L));
         assertTrue(ex.getMessage().contains("123"));
     }
 
@@ -180,7 +180,7 @@ class TaskApplicationTest {
 
         when(taskRepository.findById(5L)).thenReturn(java.util.Optional.of(existing));
 
-        taskService.delete(5L);
+        taskService.deleteById(5L);
 
         verify(taskRepository).delete(existing);
     }
@@ -195,7 +195,7 @@ class TaskApplicationTest {
         task.setDueDate(LocalDate.now().plusDays(1));
         task.prePersist();
 
-        TaskResponse dto = taskService.toResponseDTO(task);
+        TaskResponse dto = taskService.toTaskResponse(task);
 
         assertEquals("A", dto.getTitle());
         assertEquals("B", dto.getDescription());

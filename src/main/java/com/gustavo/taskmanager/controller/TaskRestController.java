@@ -35,7 +35,7 @@ public class TaskRestController {
     @ResponseStatus(HttpStatus.CREATED)
     public TaskResponse createTask(@Valid @RequestBody CreateTaskRequest dto) {
         Task created = taskService.create(dto);
-        return taskService.toResponseDTO(created);
+        return taskService.toTaskResponse(created);
     }
 
     @GetMapping
@@ -54,8 +54,8 @@ public class TaskRestController {
 
     @GetMapping("/{id}")
     public TaskResponse getTaskById(@PathVariable Long id) {
-        Task task = taskService.findById(id);
-        return taskService.toResponseDTO(task);
+        Task task = taskService.getTaskOrThrow(id);
+        return taskService.toTaskResponse(task);
     }
 
     @PutMapping("/{id}")
@@ -71,7 +71,7 @@ public class TaskRestController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTask(@PathVariable Long id) {
-        taskService.delete(id);
+        taskService.deleteById(id);
     }
 }
 

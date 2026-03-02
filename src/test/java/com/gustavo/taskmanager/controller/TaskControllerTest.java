@@ -33,7 +33,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gustavo.taskmanager.dto.TaskResponseDTO;
+import com.gustavo.taskmanager.dto.TaskResponse;
 import com.gustavo.taskmanager.entity.Task;
 import com.gustavo.taskmanager.entity.TaskPriority;
 import com.gustavo.taskmanager.entity.TaskStatus;
@@ -85,7 +85,7 @@ class TaskControllerTest {
 
         when(taskService.create(any())).thenReturn(created);
 
-        TaskResponseDTO resp = new TaskResponseDTO();
+        TaskResponse resp = new TaskResponse();
         resp.setId(1L);
         resp.setTitle(created.getTitle());
         resp.setDescription(created.getDescription());
@@ -187,7 +187,7 @@ class TaskControllerTest {
 
     @Test
     void getTasks_deveRetornarPagina() throws Exception {
-        TaskResponseDTO dto = new TaskResponseDTO();
+        TaskResponse dto = new TaskResponse();
         dto.setId(1L);
         dto.setTitle("Primeira");
         dto.setDescription("Desc");
@@ -196,7 +196,7 @@ class TaskControllerTest {
         dto.setCreatedAt(LocalDateTime.now());
         dto.setUpdatedAt(LocalDateTime.now());
 
-        Page<TaskResponseDTO> page = new PageImpl<>(
+        Page<TaskResponse> page = new PageImpl<>(
                 List.of(dto),
                 PageRequest.of(0, 10),
                 1
@@ -225,7 +225,7 @@ class TaskControllerTest {
 
         when(taskService.findById(5L)).thenReturn(task);
 
-        TaskResponseDTO resp = new TaskResponseDTO();
+        TaskResponse resp = new TaskResponse();
         resp.setId(5L);
         resp.setTitle(task.getTitle());
         resp.setDescription(task.getDescription());
@@ -268,7 +268,7 @@ class TaskControllerTest {
         }
         """;
 
-        TaskResponseDTO resp = new TaskResponseDTO();
+        TaskResponse resp = new TaskResponse();
         resp.setId(10L);
         resp.setTitle("Atualizado");
         resp.setDescription("Nova desc");
@@ -296,7 +296,7 @@ class TaskControllerTest {
         }
         """;
 
-        TaskResponseDTO resp = new TaskResponseDTO();
+        TaskResponse resp = new TaskResponse();
         resp.setId(11L);
         resp.setTitle("Parcial");
         resp.setStatus(TaskStatus.TODO);

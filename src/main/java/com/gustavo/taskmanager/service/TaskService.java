@@ -6,10 +6,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.gustavo.taskmanager.dto.TaskCreateDTO;
+import com.gustavo.taskmanager.dto.CreateTaskRequest;
 import com.gustavo.taskmanager.dto.TaskPatchDTO;
-import com.gustavo.taskmanager.dto.TaskResponseDTO;
-import com.gustavo.taskmanager.dto.TaskUpdateDTO;
+import com.gustavo.taskmanager.dto.TaskResponse;
+import com.gustavo.taskmanager.dto.UpdateTaskRequest;
 import com.gustavo.taskmanager.entity.Task;
 import com.gustavo.taskmanager.entity.TaskPriority;
 import com.gustavo.taskmanager.entity.TaskStatus;
@@ -25,7 +25,7 @@ public class TaskService {
         this.taskRepository = taskRepository;
     }
 
-    public Task create(TaskCreateDTO dto) {
+    public Task create(CreateTaskRequest dto) {
         Task task = new Task();
         task.setTitle(dto.getTitle());
         task.setDescription(dto.getDescription());
@@ -49,11 +49,11 @@ public class TaskService {
         return taskRepository.findAll();
     }
 
-    public Page<TaskResponseDTO> findAll(Pageable pageable) {
+    public Page<TaskResponse> findAll(Pageable pageable) {
         return taskRepository.findAll(pageable).map(this::toResponseDTO);
     }
 
-    public Page<TaskResponseDTO> search(String q, TaskStatus status, TaskPriority priority, Pageable pageable) {
+    public Page<TaskResponse> search(String q, TaskStatus status, TaskPriority priority, Pageable pageable) {
         String query = q == null ? null : q.trim();
         boolean hasQ = query != null && !query.isBlank();
 
@@ -74,8 +74,8 @@ public class TaskService {
                 .orElseThrow(() -> new TaskNotFoundException(id));
     }
 
-    public TaskResponseDTO toResponseDTO(Task task) {
-        TaskResponseDTO dto = new TaskResponseDTO();
+    public TaskResponse toResponseDTO(Task task) {
+        TaskResponse dto = new TaskResponse();
         dto.setId(task.getId());
         dto.setTitle(task.getTitle());
         dto.setDescription(task.getDescription());
@@ -87,7 +87,7 @@ public class TaskService {
         return dto;
     }
 
-    public TaskResponseDTO update(Long id, TaskUpdateDTO dto) {
+    public TaskResponse update(Long id, UpdateTaskRequest dto) {
         Task task = findById(id);
 
         task.setTitle(dto.getTitle());
@@ -109,7 +109,7 @@ public class TaskService {
         return toResponseDTO(saved);
     }
 
-    public TaskResponseDTO patch(Long id, TaskPatchDTO dto) {
+    public TaskResponse patch(Long id, TaskPatchDTO dto) {
         Task task = findById(id);
 
         if (dto.getTitle() != null) task.setTitle(dto.getTitle());

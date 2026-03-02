@@ -5,8 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.gustavo.taskmanager.config.AppAuthProperties;
-import com.gustavo.taskmanager.dto.LoginRequestDTO;
-import com.gustavo.taskmanager.dto.LoginResponseDTO;
+import com.gustavo.taskmanager.dto.LoginRequest;
+import com.gustavo.taskmanager.dto.LoginResponse;
 import com.gustavo.taskmanager.exception.UnauthorizedException;
 import com.gustavo.taskmanager.security.JwtService;
 import com.gustavo.taskmanager.security.LoginRateLimiter;
@@ -29,7 +29,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO dto, HttpServletRequest request) {
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest dto, HttpServletRequest request) {
         String key = clientKey(request);
 
         if (!loginRateLimiter.allow(key)) {
@@ -41,7 +41,7 @@ public class AuthController {
         }
 
         String token = jwtService.generateToken(dto.getUsername());
-        return ResponseEntity.ok(new LoginResponseDTO(token));
+        return ResponseEntity.ok(new LoginResponse(token));
     }
 
     private String clientKey(HttpServletRequest request) {

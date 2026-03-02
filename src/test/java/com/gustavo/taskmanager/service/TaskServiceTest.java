@@ -10,10 +10,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import com.gustavo.taskmanager.dto.TaskCreateDTO;
+import com.gustavo.taskmanager.dto.CreateTaskRequest;
 import com.gustavo.taskmanager.dto.TaskPatchDTO;
-import com.gustavo.taskmanager.dto.TaskResponseDTO;
-import com.gustavo.taskmanager.dto.TaskUpdateDTO;
+import com.gustavo.taskmanager.dto.TaskResponse;
+import com.gustavo.taskmanager.dto.UpdateTaskRequest;
 import com.gustavo.taskmanager.entity.Task;
 import com.gustavo.taskmanager.entity.TaskPriority;
 import com.gustavo.taskmanager.entity.TaskStatus;
@@ -34,7 +34,7 @@ class TaskServiceTest {
     @Test
     void create_quandoDtoSemStatusEPriority_deveManterStatusDefaultETrocarPriorityParaMEDIUM() {
         // Arrange
-        TaskCreateDTO dto = new TaskCreateDTO();
+        CreateTaskRequest dto = new CreateTaskRequest();
         dto.setTitle("Tarefa 1");
         dto.setDescription("Desc");
         dto.setStatus(null);   // não seta -> Task já default TODO na entidade
@@ -72,7 +72,7 @@ class TaskServiceTest {
     @Test
     void create_quandoDtoComStatusEPriority_deveSalvarComEles() {
         // Arrange
-        TaskCreateDTO dto = new TaskCreateDTO();
+        CreateTaskRequest dto = new CreateTaskRequest();
         dto.setTitle("Tarefa 2");
         dto.setDescription("Desc 2");
         dto.setStatus(TaskStatus.DOING);
@@ -117,7 +117,7 @@ class TaskServiceTest {
             return t;
         });
 
-        TaskUpdateDTO dto = new TaskUpdateDTO();
+        UpdateTaskRequest dto = new UpdateTaskRequest();
         dto.setTitle("Depois");
         dto.setDescription("Depois desc");
         dto.setStatus(TaskStatus.DONE);
@@ -125,7 +125,7 @@ class TaskServiceTest {
         dto.setDueDate(LocalDate.now().plusDays(10));
 
         // Act
-        TaskResponseDTO updated = taskService.update(10L, dto);
+        TaskResponse updated = taskService.update(10L, dto);
 
         // Assert
         assertEquals("Depois", updated.getTitle());
@@ -163,7 +163,7 @@ class TaskServiceTest {
         dto.setDueDate(null);
 
         // Act
-        TaskResponseDTO patched = taskService.patch(7L, dto);
+        TaskResponse patched = taskService.patch(7L, dto);
 
         // Assert
         assertEquals("New", patched.getTitle());
@@ -195,7 +195,7 @@ class TaskServiceTest {
         task.setDueDate(LocalDate.now().plusDays(1));
         task.prePersist();
 
-        TaskResponseDTO dto = taskService.toResponseDTO(task);
+        TaskResponse dto = taskService.toResponseDTO(task);
 
         assertEquals("A", dto.getTitle());
         assertEquals("B", dto.getDescription());

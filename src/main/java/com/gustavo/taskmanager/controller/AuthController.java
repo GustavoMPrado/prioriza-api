@@ -29,26 +29,26 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest dto, HttpServletRequest request) {
-        String key = clientKey(request);
+    public ResponseEntity<LoginResponse> authenticate(@Valid @RequestBody LoginRequest requestBody, HttpServletRequest request) {
+        String clientKey = resolveClientKey(request);
 
-        if (!loginRateLimiter.allow(key)) {
+        if (!loginRateLimiter.allow(clientKey)) {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
         }
 
-        if (!authProps.getUsername().equals(dto.getUsername()) || !authProps.getPassword().equals(dto.getPassword())) {
+        if (!authProps.getUsername().equals(requestBody.getUsername()) || !authProps.getPassword().equals(requestBody.getPassword())) {
             throw new UnauthorizedException();
         }
 
-        String token = jwtService.generateToken(dto.getUsername());
+        String token = jwtService.generateToken(requestBody.getUsername());
         return ResponseEntity.ok(new LoginResponse(token));
     }
 
-    private String clientKey(HttpServletRequest request) {
-        String forwarded = request.getHeader("X-Forwarded-For");
-        if (forwarded != null && !forwarded.isBlank()) {
-            int comma = forwarded.indexOf(',');
-            return comma > 0 ? forwarded.substring(0, comma).trim() : forwarded.trim();
+    private String resolveClientKey(HttpServletRequest request) {
+        String forwardedFor = request.getHeader("X-Forwarded-For");
+        if (forwardedFor != null && !forwardedFor.isBlank()) {
+            int comma = forwardedFor.indexOf(',');
+            return comma > 0 ? forwardedFor.substring(0, comma).trim() : forwardedFor.trim();
         }
         return request.getRemoteAddr();
     }

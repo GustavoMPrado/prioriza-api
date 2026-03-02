@@ -25,21 +25,21 @@ public class TaskRestController {
     private static final int DEFAULT_SIZE = 10;
     private static final int MAX_SIZE = 50;
 
-    private final TaskService taskService;
+    private final TaskService taskApplicationService;
 
     public TaskRestController(TaskService taskService) {
-        this.taskService = taskService;
+        this.taskApplicationService = taskService;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public TaskResponse create(@Valid @RequestBody CreateTaskRequest dto) {
-        Task created = taskService.create(dto);
-        return taskService.toResponseDTO(created);
+    public TaskResponse createTask(@Valid @RequestBody CreateTaskRequest dto) {
+        Task created = taskApplicationService.create(dto);
+        return taskApplicationService.toResponseDTO(created);
     }
 
     @GetMapping
-    public Page<TaskResponse> list(
+    public Page<TaskResponse> searchTasks(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) TaskStatus status,
             @RequestParam(required = false) TaskPriority priority,
@@ -49,29 +49,29 @@ public class TaskRestController {
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), MAX_SIZE);
         Pageable pageable = PageRequest.of(safePage, safeSize);
-        return taskService.search(q, status, priority, pageable);
+        return taskApplicationService.search(q, status, priority, pageable);
     }
 
     @GetMapping("/{id}")
-    public TaskResponse getById(@PathVariable Long id) {
-        Task task = taskService.findById(id);
-        return taskService.toResponseDTO(task);
+    public TaskResponse getTaskById(@PathVariable Long id) {
+        Task task = taskApplicationService.findById(id);
+        return taskApplicationService.toResponseDTO(task);
     }
 
     @PutMapping("/{id}")
     public TaskResponse update(@PathVariable Long id, @Valid @RequestBody UpdateTaskRequest dto) {
-        return taskService.update(id, dto);
+        return taskApplicationService.update(id, dto);
     }
 
     @PatchMapping("/{id}")
     public TaskResponse patch(@PathVariable Long id, @Valid @RequestBody PatchTaskRequest dto) {
-        return taskService.patch(id, dto);
+        return taskApplicationService.patch(id, dto);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
-        taskService.delete(id);
+    public void deleteTask(@PathVariable Long id) {
+        taskApplicationService.delete(id);
     }
 }
 

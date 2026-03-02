@@ -8,7 +8,7 @@ import com.gustavo.taskmanager.entity.TaskStatus;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Size;
 
-public class TaskPatchDTO {
+public class PatchTaskRequest {
 
     @Size(min = 3, max = 120)
     private String title;

@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.gustavo.taskmanager.dto.CreateTaskRequest;
-import com.gustavo.taskmanager.dto.TaskPatchDTO;
+import com.gustavo.taskmanager.dto.PatchTaskRequest;
 import com.gustavo.taskmanager.dto.TaskResponse;
 import com.gustavo.taskmanager.dto.UpdateTaskRequest;
 import com.gustavo.taskmanager.entity.Task;
@@ -109,7 +109,7 @@ public class TaskService {
         return toResponseDTO(saved);
     }
 
-    public TaskResponse patch(Long id, TaskPatchDTO dto) {
+    public TaskResponse patch(Long id, PatchTaskRequest dto) {
         Task task = findById(id);
 
         if (dto.getTitle() != null) task.setTitle(dto.getTitle());

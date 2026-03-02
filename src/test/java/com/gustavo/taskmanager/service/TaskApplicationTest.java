@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import com.gustavo.taskmanager.dto.CreateTaskRequest;
-import com.gustavo.taskmanager.dto.TaskPatchDTO;
+import com.gustavo.taskmanager.dto.PatchTaskRequest;
 import com.gustavo.taskmanager.dto.TaskResponse;
 import com.gustavo.taskmanager.dto.UpdateTaskRequest;
 import com.gustavo.taskmanager.entity.Task;
@@ -20,7 +20,7 @@ import com.gustavo.taskmanager.entity.TaskStatus;
 import com.gustavo.taskmanager.exception.TaskNotFoundException;
 import com.gustavo.taskmanager.repository.TaskRepository;
 
-class TaskServiceTest {
+class TaskApplicationTest {
 
     private TaskRepository taskRepository;
     private TaskService taskService;
@@ -155,7 +155,7 @@ class TaskServiceTest {
             return t;
         });
 
-        TaskPatchDTO dto = new TaskPatchDTO();
+        PatchTaskRequest dto = new PatchTaskRequest();
         dto.setTitle("New");
         dto.setDescription(null);
         dto.setStatus(null);

@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import com.gustavo.taskmanager.dto.CreateTaskRequest;
-import com.gustavo.taskmanager.dto.TaskPatchDTO;
+import com.gustavo.taskmanager.dto.PatchTaskRequest;
 import com.gustavo.taskmanager.dto.TaskResponse;
 import com.gustavo.taskmanager.dto.UpdateTaskRequest;
 import com.gustavo.taskmanager.entity.Task;
@@ -19,7 +19,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/tasks")
-public class TaskController {
+public class TaskRestController {
 
     private static final int DEFAULT_PAGE = 0;
     private static final int DEFAULT_SIZE = 10;
@@ -27,7 +27,7 @@ public class TaskController {
 
     private final TaskService taskService;
 
-    public TaskController(TaskService taskService) {
+    public TaskRestController(TaskService taskService) {
         this.taskService = taskService;
     }
 
@@ -64,7 +64,7 @@ public class TaskController {
     }
 
     @PatchMapping("/{id}")
-    public TaskResponse patch(@PathVariable Long id, @Valid @RequestBody TaskPatchDTO dto) {
+    public TaskResponse patch(@PathVariable Long id, @Valid @RequestBody PatchTaskRequest dto) {
         return taskService.patch(id, dto);
     }
 

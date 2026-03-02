@@ -39,12 +39,12 @@ import com.gustavo.taskmanager.entity.TaskPriority;
 import com.gustavo.taskmanager.entity.TaskStatus;
 import com.gustavo.taskmanager.exception.GlobalExceptionHandler;
 import com.gustavo.taskmanager.exception.TaskNotFoundException;
-import com.gustavo.taskmanager.security.JwtAuthFilter;
+import com.gustavo.taskmanager.security.JwtAuthenticationFilter;
 import com.gustavo.taskmanager.service.TaskService;
 
 @WebMvcTest(
         controllers = TaskRestController.class,
-        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JwtAuthFilter.class)
+        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JwtAuthenticationFilter.class)
 )
 @AutoConfigureMockMvc(addFilters = false)
 @Import({ GlobalExceptionHandler.class, TaskRestControllerTest.MockConfig.class })

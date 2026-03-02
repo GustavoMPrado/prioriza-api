@@ -12,11 +12,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Component
-public class JwtAuthFilter extends OncePerRequestFilter {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
 
-    public JwtAuthFilter(JwtService jwtService) {
+    public JwtAuthenticationFilter(JwtService jwtService) {
         this.jwtService = jwtService;
     }
 
@@ -27,15 +27,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String header = request.getHeader("Authorization");
+        String authorizationHeader = request.getHeader("Authorization");
 
-        if (StringUtils.hasText(header) && header.startsWith("Bearer ")) {
-            String token = header.substring(7).trim();
-            String username = jwtService.getSubjectIfValid(token);
+        if (StringUtils.hasText(authorizationHeader) && authorizationHeader.startsWith("Bearer ")) {
+            String jwtToken = authorizationHeader.substring(7).trim();
+            String authenticatedUsername = jwtService.getSubjectIfValid(jwtToken);
 
-            if (username != null) {
+            if (authenticatedUsername != null) {
                 org.springframework.security.core.context.SecurityContextHolder.getContext()
-                        .setAuthentication(new JwtAuthentication(username));
+                        .setAuthentication(new JwtUserAuthentication(authenticatedUsername));
             }
         }
 

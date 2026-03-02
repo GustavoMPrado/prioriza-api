@@ -186,7 +186,7 @@ class TaskApplicationTest {
     }
 
     @Test
-    void toResponseDTO_deveMapearCamposPrincipais() {
+    void toTaskResponse_deveMapearCamposPrincipais() {
         Task task = new Task();
         task.setTitle("A");
         task.setDescription("B");

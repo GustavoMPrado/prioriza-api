@@ -40,7 +40,7 @@ public class AuthController {
             throw new UnauthorizedException();
         }
 
-        String token = jwtService.generateToken(requestBody.getUsername());
+        String token = jwtService.generateAccessToken(requestBody.getUsername());
         return ResponseEntity.ok(new LoginResponse(token));
     }
 

@@ -16,33 +16,33 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class JwtService {
 
-    private final JwtProperties props;
+    private final JwtProperties jwtProperties;
 
-    public JwtService(JwtProperties props) {
-        this.props = props;
+    public JwtService(JwtProperties jwtProperties) {
+        this.jwtProperties = jwtProperties;
     }
 
-    public String generateToken(String username) {
+    public String generateAccessToken(String username) {
         Instant now = Instant.now();
-        Instant exp = now.plus(props.getExpirationMinutes(), ChronoUnit.MINUTES);
+        Instant expiresAt = now.plus(jwtProperties.getExpirationMinutes(), ChronoUnit.MINUTES);
 
         return Jwts.builder()
                 .subject(username)
                 .issuedAt(Date.from(now))
-                .expiration(Date.from(exp))
-                .signWith(Keys.hmacShaKeyFor(props.getSecret().getBytes(StandardCharsets.UTF_8)))
+                .expiration(Date.from(expiresAt))
+                .signWith(Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8)))
                 .compact();
     }
 
-    public String validateAndGetSubject(String token) {
+    public String getSubjectIfValid(String token) {
         try {
-            Claims claims = Jwts.parser()
-                    .verifyWith(Keys.hmacShaKeyFor(props.getSecret().getBytes(StandardCharsets.UTF_8)))
+            Claims tokenClaims = Jwts.parser()
+                    .verifyWith(Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8)))
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
 
-            return claims.getSubject();
+            return tokenClaims.getSubject();
         } catch (Exception e) {
             return null;
         }

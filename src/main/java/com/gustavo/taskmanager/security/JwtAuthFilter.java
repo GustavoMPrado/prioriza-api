@@ -31,7 +31,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if (StringUtils.hasText(header) && header.startsWith("Bearer ")) {
             String token = header.substring(7).trim();
-            String username = jwtService.validateAndGetSubject(token);
+            String username = jwtService.getSubjectIfValid(token);
 
             if (username != null) {
                 org.springframework.security.core.context.SecurityContextHolder.getContext()

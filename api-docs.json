@@ -1,1 +1,0 @@
-{"timestamp":"2026-02-06T19:05:13.160392623","status":500,"error":"Internal Server Error","message":"NoResourceFoundException: No static resource v3/api-docs.","path":"/v3/api-docs","errors":null}

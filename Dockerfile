@@ -8,7 +8,6 @@ ENV PATH="$JAVA_HOME/bin:$PATH"
 COPY gradlew gradlew
 COPY gradlew.bat gradlew.bat
 COPY gradle gradle
-COPY gradle.properties ./
 
 COPY build.gradle settings.gradle ./
 
@@ -26,7 +25,7 @@ RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /app/build/libs/*.jar app.jar
 
-EXPOSE 8081
+EXPOSE 8080
 ENV SPRING_PROFILES_ACTIVE=prod
 ENTRYPOINT ["java","-jar","/app/app.jar"]
 

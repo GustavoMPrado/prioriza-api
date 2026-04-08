@@ -6,7 +6,7 @@ plugins {
 
 group = 'com.gustavo'
 version = '0.0.1-SNAPSHOT'
-description = 'Task Manager API'
+description = 'Prioriza API'
 
 java {
 	toolchain {

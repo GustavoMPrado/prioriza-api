@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-  <property name="APP_NAME" value="taskmanager"/>
+  <property name="APP_NAME" value="prioriza"/>
   <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [${APP_NAME}] [%thread] %logger{36} - %msg%n%ex{full}"/>
 
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">

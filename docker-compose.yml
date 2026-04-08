@@ -2,15 +2,14 @@ services:
   postgres:
     image: postgres:16
     environment:
-      POSTGRES_DB: taskdb
-      POSTGRES_USER: taskuser
-      POSTGRES_PASSWORD: taskpass
-    ports:
-      - "5432:5432"
+      POSTGRES_DB: prioriza
+      POSTGRES_USER: prioriza
+      POSTGRES_PASSWORD: prioriza
+  
     volumes:
-      - taskdb_data:/var/lib/postgresql/data
+      - prioriza_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U taskuser -d taskdb"]
+      test: ["CMD-SHELL", "pg_isready -U prioriza -d prioriza"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -24,12 +23,11 @@ services:
       - "8081:8080"
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/taskdb
-      SPRING_DATASOURCE_USERNAME: taskuser
-      SPRING_DATASOURCE_PASSWORD: taskpass
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/prioriza
+      SPRING_DATASOURCE_USERNAME: prioriza
+      SPRING_DATASOURCE_PASSWORD: prioriza
       SPRING_APPLICATION_JSON: '{"app":{"auth":{"username":"admin","password":"admin123"},"jwt":{"secret":"dev-secret-change-me-1234567890-1234567890-1234567890","expiration-minutes":120}}}'
-      OPENAI_API_KEY: ""
-      OPENAI_MODEL: "gpt-4.1-mini"
+
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"'"]
       interval: 10s
@@ -38,7 +36,7 @@ services:
       start_period: 20s
 
 volumes:
-  taskdb_data:
+  prioriza_data:
 
 
 

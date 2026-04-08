@@ -1,12 +1,12 @@
-HELP.md
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### STS ###
+### Eclipse / STS ###
 .apt_generated
+.apt_generated_tests
 .classpath
 .factorypath
 .project

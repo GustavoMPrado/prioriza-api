@@ -1,7 +1,7 @@
 ﻿{
-  "title": "Task 2 - PUT",
-  "description": "atualizada via PUT",
-  "status": "DOING",
-  "priority": "HIGH",
-  "dueDate": "2026-02-10"
+  "titulo": "Atividade 2 - PUT",
+  "descricao": "atualizada via PUT",
+  "status": "EM_ANDAMENTO",
+  "prioridade": "ALTA",
+  "dataLimite": "2026-02-10"
 }

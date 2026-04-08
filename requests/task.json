@@ -1,6 +1,6 @@
 ﻿{
-  "title": "Primeira task no Postgres",
-  "description": "Criada via Docker e Flyway",
-  "status": "TODO",
-  "priority": "MEDIUM"
+  "titulo": "Primeira atividade no Postgres",
+  "descricao": "Criada via Docker e Flyway",
+  "status": "A_FAZER",
+  "prioridade": "MEDIA"
 }
